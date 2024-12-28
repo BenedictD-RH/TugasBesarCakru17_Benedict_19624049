@@ -15,8 +15,8 @@ Alur Kerja ROS :
 - topic '/basic_bot/cmd_vel' akan mempublish data tersebut ke node gazebo yang akan menggerakan robot menggunakan skid steering
 - Jika besar bounding box warna hitam melewati batas tertentu (480*480) maka robot akan dianggap didepan benda hitam.
   Saat itu, node 'main_control' akan mempublish beberapa data kepada topic '/basic_bot/joint1_position_controller/command' dan 
-  '/basic_bot/joint2_position_controller/command' secara sequence untuk menggerakan lengan robot dan mengayunkan palu
-
+  '/basic_bot/joint2_position_controller/command' secara sequence yang akan mempublish ke node gazebo dan menggerakan 
+  lengan robot dan mengayunkan palu
 
 
 https://drive.google.com/drive/folders/1TMKJihU7lBBKvuua9ksw24b9hkOtroVE?usp=drive_link
