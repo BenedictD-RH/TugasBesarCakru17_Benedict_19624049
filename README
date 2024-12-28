@@ -3,7 +3,19 @@ Robot akan berputar searag jarum jam hingga ia menemukan benda berwarna hitam di
 Setelah mendeteksi benda hitam, robot akan berjalan hingga ia tepat didepan benda tersebut
 Setelah itu robot akan mengayunkan palu kepada benda untuk melontarkannya
 
-
+Alur Kerja ROS : 
+- robot yang disimulasikan di gazebo akan mengambil gambar menggunakan camera yang terinstall di robot
+- camera tersebut akan mempublish raw image tersebut ke topic '/basic_bot/camera1/image_raw' 
+- node 'main_control' menerima data berupa raw image dari topic '/basic_bot/camera1/image_raw' 
+- node 'main_control' akan memproses raw image menggunakan openCV
+- Jika tidak terdeteksi warna hitam di daerah tengah gambar, node 'main control' akan mempublish data 
+  dalam bentuk twist (kecepatan linear x = 0 dan kecepatan angular z = 1) ke topic '/basic_bot/cmd_vel'
+- Jika terdeteksi warna hitam di daerah tengah gambar, node 'main control' akan mempublish data 
+  dalam bentuk twist (kecepatan linear x = 1 dan kecepatan angular z = 0) ke topic '/basic_bot/cmd_vel'
+- topic '/basic_bot/cmd_vel' akan mempublish data tersebut ke node gazebo yang akan menggerakan robot menggunakan skid steering
+- Jika besar bounding box warna hitam melewati batas tertentu (480*480) maka robot akan dianggap didepan benda hitam.
+  Saat itu, node 'main_control' akan mempublish beberapa data kepada topic '/basic_bot/joint1_position_controller/command' dan 
+  '/basic_bot/joint2_position_controller/command' secara sequence untuk menggerakan lengan robot dan mengayunkan palu
 
 
 
