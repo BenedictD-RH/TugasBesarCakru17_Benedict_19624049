@@ -1,0 +1,299 @@
+<?xml version="1.0"?>
+<robot name="basic_bot" xmlns:xacro="http:/www.ros.org/wiki/xacro">
+
+<xacro:property name="body_x" value="1"/>
+<xacro:property name="body_y" value="0.6"/>
+<xacro:property name="body_z" value="0.3"/>
+
+<xacro:property name="wheel_radius" value="0.15"/>
+<xacro:property name="wheel_length" value="0.1"/>
+<xacro:property name="wheel_z" value="-0.1"/>
+
+<xacro:property name="arm_x" value="0.6"/>
+<xacro:property name="arm_y" value="0.1"/>
+<xacro:property name="arm_z" value="0.05"/>
+
+<xacro:property name="hammer_radius" value="0.075"/>
+<xacro:property name="hammer_length" value="0.4"/>
+
+<xacro:property name="joint_radius" value="0.05"/>
+<xacro:property name="joint_length" value="0.025"/>
+
+<xacro:property name="body_density" value="2710.0"/>
+<xacro:property name="wheel_density" value="2710.0"/>
+<xacro:property name="arm_density" value="500.0"/>
+
+<xacro:property name="pi" value="3.14158265"/>
+
+<xacro:property name="body_mass" value="${body_density*body_x*body_y*body_z}"/>
+<xacro:property name="wheel_mass" value="${wheel_density*wheel_radius*wheel_radius*wheel_length*pi}"/>
+<xacro:property name="arm_mass" value="${arm_density*arm_x*arm_y*arm_z}"/>
+<xacro:property name="hammer_mass" value="${arm_density*hammer_radius*hammer_radius*hammer_length*pi}"/>
+<xacro:property name="joint_mass" value="${arm_density*joint_radius*joint_radius*joint_length*pi}"/>
+
+<xacro:property name="Iy_wheel" value="${0.5*wheel_mass*wheel_radius*wheel_radius}"/>
+<xacro:property name="Ixz_wheel" value="${(1/12)*wheel_mass*(3*wheel_radius*wheel_radius+wheel_length*wheel_length)}"/>
+
+<xacro:property name="Ix_arm" value="${(1/12)*arm_mass*(arm_z*arm_z+arm_y*arm_y)}"/>
+<xacro:property name="Iy_arm" value="${(1/12)*arm_mass*(arm_z*arm_z+arm_x*arm_x)}"/>
+<xacro:property name="Iz_arm" value="${(1/12)*arm_mass*(arm_y*arm_y+arm_x*arm_x)}"/>
+
+<xacro:property name="Iy_hammer" value="${0.5*hammer_mass*hammer_radius*hammer_radius}"/>
+<xacro:property name="Ixz_hammer" value="${(1/12)*hammer_mass*(3*hammer_radius*hammer_radius+hammer_length*hammer_length)}"/>
+
+<xacro:property name="Iz_joint" value="${0.5*joint_mass*joint_radius*joint_radius*pi}"/>
+<xacro:property name="Ixy_joint" value="${(1/12)*joint_mass*(3*joint_radius*joint_radius+joint_length*joint_length)}"/>
+
+<xacro:macro name="link_wheel">
+	<visual>
+		<origin rpy="${pi/2} 0 0" xyz="0 0 0"/>
+		<geometry>
+			<cylinder length="${wheel_length}" radius="${wheel_radius}"/>
+		</geometry>
+		
+		<material name="yellow">
+			<color rgba="1 1 0 1"/>
+		</material>
+	</visual>
+	
+	<collision>
+		<origin rpy="${pi/2} 0 0" xyz="0 0 0"/>
+		<geometry>
+			<cylinder length="${wheel_length}" radius="${wheel_radius}"/>
+		</geometry>
+	</collision>
+
+	<inertial>
+		<origin rpy="0 0 0" xyz="0 0 0"/>
+		<mass value="${wheel_mass}"/>
+		<inertia ixx="${Ixz_wheel}" ixy="0" ixz="0" iyy="${Iy_wheel}" iyz="0" izz="${Ixz_wheel}"/>
+	</inertial>
+</xacro:macro>
+
+<xacro:macro name="link_arm">
+	<visual>
+		<origin rpy="0 0 0" xyz="${0.5*(arm_x-arm_y)} 0 0"/>
+		<geometry>
+			<box size="${arm_x} ${arm_y} ${arm_z}"/>
+		</geometry>
+		
+		<material name="blue">
+			<color rgba="0 0 1 1"/>
+		</material>
+	</visual>
+
+	<collision>
+		<origin rpy="0 0 0" xyz="${0.5*(arm_x-arm_y)} 0 0"/>
+		<geometry>
+			<box size="${arm_x} ${arm_y} ${arm_z}"/>
+		</geometry>
+	</collision>
+
+	<inertial>
+		<origin rpy="0 0 0" xyz="0 0 0"/>
+		<mass value="${arm_mass}"/>
+		<inertia ixx="${Ix_arm}" ixy="0" ixz="0" iyy="${Iy_arm}" iyz="0" izz="${Iz_arm}"/>
+	</inertial>
+</xacro:macro>
+
+<xacro:include filename="$(find robot_model_pkg)/urdf/robot.gazebo" />
+<xacro:include filename="$(find robot_model_pkg)/urdf/camera.xacro" />
+<xacro:include filename="$(find robot_model_pkg)/urdf/transmission.xacro" />
+	
+<link name="dummy">
+</link>
+<joint name="dummy_joint" type="fixed">
+	<parent link="dummy"/>
+	<child link="body_link"/>
+</joint>
+	
+	
+	
+	
+<link name="body_link">
+	<visual>
+		<origin rpy="0 0 0" xzy="0 0 0"/>
+		<geometry>
+			<box size="${body_x}  ${body_y} ${body_z}" />
+		</geometry>
+		
+		<material name="red">
+			<color rgba="1 0 0 1"/>
+		</material>
+	</visual>
+	
+	
+	<collision>
+		<origin rpy="0 0 0" xzy="0 0 0"/>
+		<geometry>
+			<box size="${body_x} ${body_y} ${body_z}" />
+		</geometry>
+	</collision>
+	
+	
+	<inertial>
+		<origin rpy="0 0 0" xzy="0 0 0"/>
+		<mass value="${body_mass}"/>
+	<inertia
+	ixx="${(1/12)*body_mass*(body_y*body_y+body_z*body_z)}" ixy="0" ixz="0"
+	iyy="${(1/12)*body_mass*(body_x*body_x+body_z*body_z)}" iyz="0"
+	izz="${(1/12)*body_mass*(body_x*body_x+body_y*body_y)}"/>
+	</inertial>
+</link>
+
+
+
+
+<joint name="wheel1_joint" type="continuous">
+	<parent link="body_link"/>
+	<child link="wheel1_link"/>
+	<origin xyz="${-body_x/2+1.2*wheel_radius} ${-body_y/2-wheel_length/2} ${wheel_z}" 
+	rpy="0 0 0" />
+	<axis xyz="0 1 0"/>
+	<limit effort="1000" velocity="1000"/>
+	<dynamics damping="1.0" friction="1.0"/>
+</joint>
+
+
+<link name="wheel1_link">
+	<xacro:link_wheel/>
+</link>
+
+<joint name="wheel2_joint" type="continuous">
+	<parent link="body_link"/>
+	<child link="wheel2_link"/>
+	<origin xyz="${-body_x/2+1.2*wheel_radius} ${body_y/2+wheel_length/2} ${wheel_z}" 
+	rpy="0 0 0" />
+	<axis xyz="0 1 0"/>
+	<limit effort="1000" velocity="1000"/>
+	<dynamics damping="1.0" friction="1.0"/>
+</joint>
+
+
+<link name="wheel2_link">
+
+	<xacro:link_wheel />
+</link>
+
+<joint name="wheel3_joint" type="continuous">
+	<parent link="body_link"/>
+	<child link="wheel3_link"/>
+	<origin xyz="${body_x/2-1.2*wheel_radius} ${-body_y/2-wheel_length/2} ${wheel_z}" 
+	rpy="0 0 0" />
+	<axis xyz="0 1 0"/>
+	<limit effort="1000" velocity="1000"/>
+	<dynamics damping="1.0" friction="1.0"/>
+</joint>
+
+
+<link name="wheel3_link">
+	<xacro:link_wheel />
+</link>
+
+<joint name="wheel4_joint" type="continuous">
+	<parent link="body_link"/>
+	<child link="wheel4_link"/>
+	<origin xyz="${body_x/2-1.2*wheel_radius} ${body_y/2+wheel_length/2} ${wheel_z}" 
+	rpy="0 0 0" />
+	<axis xyz="0 1 0"/>
+	<limit effort="1000" velocity="1000"/>
+	<dynamics damping="1.0" friction="1.0"/>
+</joint>
+
+
+<link name="wheel4_link">
+	<xacro:link_wheel />
+</link>
+
+<joint name="arm1_joint" type="revolute">
+	<parent link="body_link"/>
+	<child link="armjoint1_link"/>
+	<origin xyz="0 0 ${0.5*(body_z+arm_z)}" rpy="0 0 ${pi}" />
+	<axis xyz="0 0 1"/>
+	<limit effort="1000" velocity="10" lower="0" upper="${pi}"/>
+	<dynamics damping="1.0" friction="1.0"/>
+</joint>
+
+<link name="armjoint1_link">
+	<visual>
+		<origin rpy="0 0 0" xyz="0 0 0"/>
+		<geometry>
+			<cylinder length="${joint_length}" radius="${joint_radius}"/>
+		</geometry>
+		
+		<material name="green">
+			<color rgba="0 1 0 1"/>
+		</material>
+	</visual>
+	
+	<collision>
+		<origin rpy="0 0 0" xyz="0 0 0"/>
+		<geometry>
+			<cylinder length="${joint_length}" radius="${joint_radius}"/>
+		</geometry>
+	</collision>
+
+	<inertial>
+		<origin rpy="0 0 0" xyz="0 0 0"/>
+		<mass value="${joint_mass}"/>
+		<inertia ixx="${Ixy_joint}" ixy="0" ixz="0" iyy="${Ixy_joint}" iyz="0" izz="${Iz_joint}"/>
+	</inertial>
+</link>
+
+<joint name="arm1_connect" type="fixed">
+	<parent link="armjoint1_link"/>
+	<child link="arm1_link"/>
+	<origin xyz="0 0 ${0.5*(arm_z+joint_length)}" rpy="0 0 0" />
+</joint>
+
+<link name="arm1_link">
+	<xacro:link_arm />
+</link>
+
+<joint name="arm2_joint" type="revolute">
+	<parent link="arm1_link"/>
+	<child link="arm2_link"/>
+	<origin xyz="${arm_x - arm_y} 0 ${arm_z}" rpy="0 0 ${pi}" />
+	<axis xyz="0 0 1"/>
+	<limit effort="1000" velocity="10" lower="0" upper="${pi}"/>
+	<dynamics damping="1.0" friction="1.0"/>
+</joint>
+
+<link name="arm2_link">
+	<xacro:link_arm />
+</link>
+
+<joint name="hammer_connect" type="fixed">
+	<parent link="arm2_link"/>
+	<child link="hammer_link"/>
+	<origin xyz="${arm_x-(0.5*arm_y)+hammer_radius} 0 0" rpy="0 0 0" />
+</joint>
+
+<link name="hammer_link">
+	<visual>
+		<origin rpy="${pi/2} 0 0" xyz="0 0 0"/>
+		<geometry>
+			<cylinder length="${hammer_length}" radius="${hammer_radius}"/>
+		</geometry>
+		
+		<material name="green">
+			<color rgba="0 1 0 1"/>
+		</material>
+	</visual>
+	
+	<collision>
+		<origin rpy="${pi/2} 0 0" xyz="0 0 0"/>
+		<geometry>
+			<cylinder length="${hammer_length}" radius="${hammer_radius}"/>
+		</geometry>
+	</collision>
+
+	<inertial>
+		<origin rpy="0 0 0" xyz="0 0 0"/>
+		<mass value="${hammer_mass}"/>
+		<inertia ixx="${Ixz_hammer}" ixy="0" ixz="0" iyy="${Iy_hammer}" iyz="0" izz="${Ixz_hammer}"/>
+	</inertial>
+</link>
+
+</robot>
+
